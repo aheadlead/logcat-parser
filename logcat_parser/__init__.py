@@ -313,8 +313,8 @@ class MessageParser:
 
         # message
         message = binary[tag_terminating + 1:]
-        if message[-1] == '\x00':  # remove weird trailing empty character
-            message = message[:-1]
+        # remove weird trailing empty character
+        message = message.rstrip(b'\x00')
 
         self._priority = priority
         self._tag = tag

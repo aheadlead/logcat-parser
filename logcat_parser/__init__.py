@@ -338,7 +338,12 @@ class MessageParser:
 # pylint: disable=too-few-public-methods
 class EventParser:
 
-    def __init__(self, result: LogcatParser, event_tag_map: bytes = None):
+    def __init__(self,
+                 result: LogcatParser,
+                 event_tag_map: bytes = None,
+                 escape_string_entry: bool = True):
+        self.escape_string_entry = escape_string_entry
+
         self._message = None
 
         self._binary = result['msg']
@@ -406,10 +411,9 @@ class EventParser:
         else:
             self._tag = tag_id
 
-        _, self._message = EventParser._parse_events(self._binary[4:])
+        _, self._message = self._parse_events(self._binary[4:])
 
-    @staticmethod
-    def _parse_events(binary: bytes):
+    def _parse_events(self, binary: bytes):
 
         in_count = 0
 
@@ -439,6 +443,8 @@ class EventParser:
             in_count += 4
 
             value = safe_slice(payload, 4, string_length)
+            if self.escape_string_entry:
+                value = value.decode('unicode-escape')
             in_count += string_length
 
         elif type_ == EventLogType.EVENT_TYPE_LIST:
@@ -447,10 +453,11 @@ class EventParser:
             offset = 1
             for _ in range(count):
                 sub_in_count, sub_value = \
-                    EventParser._parse_events(payload[offset:])
+                    self._parse_events(payload[offset:])
                 in_count += sub_in_count
                 offset += sub_in_count
                 value.append(sub_value)
+
         else:
             raise LogcatParserError('unknown type ' + str(type_))
 

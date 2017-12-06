@@ -409,7 +409,7 @@ class EventParser:
         if tag_id in self._event_tag_map:
             self._tag = self._event_tag_map[tag_id]['tag']
         else:
-            self._tag = '[' + str(tag_id) + ']'
+            self._tag = tag_id
 
         _, self._message = self._parse_events(self._binary[4:])
 

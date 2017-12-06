@@ -409,7 +409,7 @@ class EventParser:
         if tag_id in self._event_tag_map:
             self._tag = self._event_tag_map[tag_id]['tag']
         else:
-            self._tag = tag_id
+            self._tag = '[' + str(tag_id) + ']'
 
         _, self._message = self._parse_events(self._binary[4:])
 
@@ -417,7 +417,13 @@ class EventParser:
 
         in_count = 0
 
-        type_in_int, *_ = unpack('B', safe_slice(binary, 0, 1))
+        try:
+            type_in_int, *_ = unpack('B', safe_slice(binary, 0, 1))
+        except IndexError:
+            # If caught IndexError here, it means this content of event is
+            # empty but tag. This case have started appearing since Android O.
+            return in_count, None
+
         try:
             type_ = EventLogType(type_in_int)
         except ValueError as exc:
@@ -475,5 +481,7 @@ if __name__ == '__main__':
         print(PARSER)
         MESSAGE_PARSER = MessageParser(PARSER[0])
         print(MESSAGE_PARSER)
+        # EVENT_PARSER = EventParser(PARSER[0], event_log_tags)
+        # print(EVENT_PARSER)
         print()
 

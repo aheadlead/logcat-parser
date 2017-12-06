@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='logcat_parser',
-    version='0.2.3',
+    version='0.2.4',
     keywords=['adb', 'logcat', 'android', 'logging'],
     description='A parser for Android logcat in binary format.',
     license='GPL',
